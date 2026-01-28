@@ -121,7 +121,18 @@ export default function LogsTable({ logs, onClear, employees = [] }) {
                                                 {log.employeeId || <span className="text-slate-300 italic">None</span>}
                                             </td>
                                             <td className={`px-6 text-slate-500 text-sm ${isLatest ? 'py-5 font-semibold text-slate-600' : 'py-3'}`}>
-                                                {jacketSize}
+                                                {jacketSize !== '-' ? (
+                                                    <span className={`inline-block px-3 py-1 rounded-full text-xs border font-bold tracking-wide ${jacketSize.toUpperCase().includes('ABENSON') ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                                                            jacketSize.toUpperCase().includes('AUTOMATIC') ? 'bg-red-100 text-red-700 border-red-200' :
+                                                                jacketSize.toUpperCase().includes('MOTORPRO') ? 'bg-orange-100 text-orange-700 border-orange-200' :
+                                                                    jacketSize.toUpperCase().includes('ELECTROWORLD') ? 'bg-pink-100 text-pink-700 border-pink-200' :
+                                                                        'bg-slate-100 text-slate-600 border-slate-200'
+                                                        }`}>
+                                                        {jacketSize}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-slate-300">-</span>
+                                                )}
                                             </td>
                                             <td className={`px-6 ${isLatest ? 'py-5' : 'py-3'}`}>
                                                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${log.type === 'IN'
