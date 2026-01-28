@@ -1,7 +1,7 @@
 import * as XLSX from 'xlsx';
 import { format, isSameDay, parseISO } from 'date-fns';
 
-export const exportLogsToExcel = (logs, selectedDate, employees = []) => {
+export const exportLogsToExcel = (logs, selectedDate, employees = [], includeJacket = true) => {
     // Filter logs for the selected date
     const filteredLogs = logs.filter((log) =>
         isSameDay(parseISO(log.timestamp), selectedDate)
@@ -25,14 +25,19 @@ export const exportLogsToExcel = (logs, selectedDate, employees = []) => {
         // Use name from log if available (manual entry), otherwise fallback to DB name
         const finalName = log.name || empDetails.EmployeeName || '';
 
-        return {
+        const row = {
             'EmployeeNo': log.employeeId || 'N/A',
             'EmployeeName': finalName,
             'Action': log.type === 'IN' ? 'Time In' : 'Time Out',
             'Time': format(parseISO(log.timestamp), 'hh:mm:ss a'),
             'Date': format(parseISO(log.timestamp), 'yyyy-MM-dd'),
-            'JACKET SIZE': empDetails.JACKET_SIZE || ''
         };
+
+        if (includeJacket) {
+            row['JACKET SIZE'] = empDetails.JACKET_SIZE || '';
+        }
+
+        return row;
     });
 
     // Create worksheet
@@ -45,8 +50,12 @@ export const exportLogsToExcel = (logs, selectedDate, employees = []) => {
         { wch: 12 }, // Action
         { wch: 15 }, // Time
         { wch: 15 }, // Date
-        { wch: 15 }, // JACKET SIZE
     ];
+
+    if (includeJacket) {
+        wscols.push({ wch: 15 }); // JACKET SIZE
+    }
+
     worksheet['!cols'] = wscols;
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Time Logs');

@@ -98,7 +98,7 @@ function App() {
 
         {/* Left Side - Action Card */}
         <div className="flex flex-col items-center w-full max-w-md">
-          <ActionCard onAction={handleAction} requireName={false} employees={employees} logs={logs} />
+          <ActionCard onAction={handleAction} requireName={false} employees={employees} logs={logs} allowMultipleLogs={systemMode === 'TRAINING'} />
 
           {/* Success Toast */}
           <div className={`mt-8 transition-all duration-500 ${lastAction ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95 pointer-events-none'}`}>
@@ -124,7 +124,7 @@ function App() {
 
         {/* Right Side - Logs Table */}
         <div className="flex-1 w-full max-w-7xl flex items-center justify-center h-full">
-          <LogsTable logs={logs} onClear={clearLogs} employees={employees} />
+          <LogsTable logs={logs} onClear={clearLogs} employees={employees} showJacket={systemMode !== 'TRAINING'} />
         </div>
 
       </main>

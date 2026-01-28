@@ -30,7 +30,7 @@ const LiveClock = () => {
     );
 };
 
-export default function LogsTable({ logs, onClear, employees = [] }) {
+export default function LogsTable({ logs, onClear, employees = [], showJacket = true }) {
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
     // Filter logs where the ISO timestamp starts with the selected YYYY-MM-DD string
@@ -51,7 +51,7 @@ export default function LogsTable({ logs, onClear, employees = [] }) {
     });
 
     const handleExport = () => {
-        exportLogsToExcel(logs, new Date(selectedDate), employees);
+        exportLogsToExcel(logs, new Date(selectedDate), employees, showJacket);
     };
 
     return (
@@ -90,7 +90,7 @@ export default function LogsTable({ logs, onClear, employees = [] }) {
                             <th className="px-6 py-4 font-semibold text-slate-600 text-xs uppercase tracking-wider">Time</th>
                             <th className="px-6 py-4 font-semibold text-slate-600 text-xs uppercase tracking-wider">Name</th>
                             <th className="px-6 py-4 font-semibold text-slate-600 text-xs uppercase tracking-wider">Employee ID</th>
-                            <th className="px-6 py-4 font-semibold text-slate-600 text-xs uppercase tracking-wider">Jacket Size</th>
+                            {showJacket && <th className="px-6 py-4 font-semibold text-slate-600 text-xs uppercase tracking-wider">Jacket Size</th>}
                             <th className="px-6 py-4 font-semibold text-slate-600 text-xs uppercase tracking-wider">Action</th>
                         </tr>
                     </thead>
@@ -120,20 +120,22 @@ export default function LogsTable({ logs, onClear, employees = [] }) {
                                             <td className={`px-6 text-slate-500 text-sm ${isLatest ? 'py-5 font-semibold text-slate-600' : 'py-3'}`}>
                                                 {log.employeeId || <span className="text-slate-300 italic">None</span>}
                                             </td>
-                                            <td className={`px-6 text-slate-500 text-sm ${isLatest ? 'py-5 font-semibold text-slate-600' : 'py-3'}`}>
-                                                {jacketSize !== '-' ? (
-                                                    <span className={`inline-block px-3 py-1 rounded-full text-xs border font-bold tracking-wide ${jacketSize.toUpperCase().includes('ABENSON') ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                                            {showJacket && (
+                                                <td className={`px-6 text-slate-500 text-sm ${isLatest ? 'py-5 font-semibold text-slate-600' : 'py-3'}`}>
+                                                    {jacketSize !== '-' ? (
+                                                        <span className={`inline-block px-3 py-1 rounded-full text-xs border font-bold tracking-wide ${jacketSize.toUpperCase().includes('ABENSON') ? 'bg-blue-100 text-blue-700 border-blue-200' :
                                                             jacketSize.toUpperCase().includes('AUTOMATIC') ? 'bg-red-100 text-red-700 border-red-200' :
                                                                 jacketSize.toUpperCase().includes('MOTORPRO') ? 'bg-orange-100 text-orange-700 border-orange-200' :
                                                                     jacketSize.toUpperCase().includes('ELECTROWORLD') ? 'bg-pink-100 text-pink-700 border-pink-200' :
                                                                         'bg-slate-100 text-slate-600 border-slate-200'
-                                                        }`}>
-                                                        {jacketSize}
-                                                    </span>
-                                                ) : (
-                                                    <span className="text-slate-300">-</span>
-                                                )}
-                                            </td>
+                                                            }`}>
+                                                            {jacketSize}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-slate-300">-</span>
+                                                    )}
+                                                </td>
+                                            )}
                                             <td className={`px-6 ${isLatest ? 'py-5' : 'py-3'}`}>
                                                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${log.type === 'IN'
                                                     ? 'bg-emerald-50 text-emerald-700 border-emerald-100 group-hover:bg-emerald-100'
@@ -148,7 +150,7 @@ export default function LogsTable({ logs, onClear, employees = [] }) {
                                 })
                         ) : (
                             <tr>
-                                <td colSpan={5} className="px-6 py-24 text-center">
+                                <td colSpan={showJacket ? 5 : 4} className="px-6 py-24 text-center">
                                     <div className="flex flex-col items-center justify-center text-slate-400">
                                         <Calendar size={48} className="mb-4 opacity-20" />
                                         <p className="text-lg font-medium text-slate-500">No logs found</p>
