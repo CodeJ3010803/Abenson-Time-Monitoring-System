@@ -3,7 +3,7 @@ import { Download, Calendar, Trash2 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { exportLogsToExcel } from '../utils/excelExport';
 
-export default function LogsTable({ logs, onClear }) {
+export default function LogsTable({ logs, onClear, employees = [] }) {
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
     // Filter logs where the ISO timestamp starts with the selected YYYY-MM-DD string
@@ -24,11 +24,7 @@ export default function LogsTable({ logs, onClear }) {
     });
 
     const handleExport = () => {
-        // We export based on selectedDate filter
-        // Pass the Date object corresponding to selectedDate (or just the Logs list filtered?)
-        // Our utility takes (logs, date). It filters again.
-        // Let's pass the date object.
-        exportLogsToExcel(logs, new Date(selectedDate));
+        exportLogsToExcel(logs, new Date(selectedDate), employees);
     };
 
     return (

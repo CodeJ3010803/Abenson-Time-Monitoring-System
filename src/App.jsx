@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useLogs } from './hooks/useLogs'
+import { useEmployees } from './hooks/useEmployees'
 import ActionCard from './components/ActionCard'
 import LogsTable from './components/LogsTable'
 import SettingsModal from './components/SettingsModal'
@@ -7,6 +8,7 @@ import { Clock, Settings } from 'lucide-react'
 
 function App() {
   const { logs, addLog, clearLogs } = useLogs()
+  const { employees, saveEmployees } = useEmployees()
   const [lastAction, setLastAction] = useState(null)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [appSettings, setAppSettings] = useState(() => {
@@ -90,7 +92,7 @@ function App() {
 
         {/* Right Side - Logs Table */}
         <div className="flex-1 w-full max-w-4xl flex items-center justify-center h-full">
-          <LogsTable logs={logs} onClear={clearLogs} />
+          <LogsTable logs={logs} onClear={clearLogs} employees={employees} />
         </div>
 
       </main>
@@ -104,6 +106,8 @@ function App() {
         onClose={() => setIsSettingsOpen(false)}
         settings={appSettings}
         onUpdateSettings={setAppSettings}
+        onImportEmployees={saveEmployees}
+        totalEmployees={employees.length}
       />
     </div>
   )
