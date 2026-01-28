@@ -5,36 +5,50 @@ export default function ActionCard({ onAction, requireName = true, employees = [
     const [mode, setMode] = useState(null); // 'IN', 'OUT', or null
     const [name, setName] = useState('');
     const [employeeId, setEmployeeId] = useState('');
+    const [error, setError] = useState(null);
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        setError(null);
 
         if (requireName && !name.trim()) {
-            alert('Please enter your name');
+            setError('Please enter your name');
             return;
         }
 
         const trimmedId = employeeId.trim();
 
         if (!trimmedId) {
-            alert('Please enter your Employee ID');
+            setError('Please enter your Employee ID');
             return;
         }
 
+        // ... (rest of validation) ...
         let finalName = name;
 
         // VALDATION LOGIC
         if (employees && employees.length > 0) {
-            // Find employee in the database (normalize to string for safety)
-            const found = employees.find(emp => String(emp.EmployeeNo).trim() === String(trimmedId));
+            // 1. Try to find by ID
+            const foundById = employees.find(emp => String(emp.EmployeeNo).trim() === String(trimmedId));
 
-            if (!found) {
-                alert(`Employee ID "${trimmedId}" not found in the database. Please contact your administrator.`);
+            if (foundById) {
+                finalName = foundById.EmployeeName;
+            } else {
+                // 2. ID not found. Check if the NAME exists in the DB (if provided)
+                let foundByName = null;
+                if (requireName && name.trim()) {
+                    foundByName = employees.find(emp =>
+                        emp.EmployeeName && emp.EmployeeName.toLowerCase().trim() === name.toLowerCase().trim()
+                    );
+                }
+
+                if (foundByName) {
+                    setError(`Employee ID "${trimmedId}" not found, but we found "${foundByName.EmployeeName}" (ID: ${foundByName.EmployeeNo}). Please use that ID.`);
+                } else {
+                    setError(`Account not detected. Neither ID "${trimmedId}" nor Name matches.`);
+                }
                 return;
             }
-
-            // Use the consistent name from the database
-            finalName = found.EmployeeName;
         }
 
         onAction({
@@ -46,13 +60,14 @@ export default function ActionCard({ onAction, requireName = true, employees = [
         // Reset
         setName('');
         setEmployeeId('');
+        setError(null);
     };
 
     if (mode) {
         return (
             <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-slate-200/50 p-8 w-full max-w-md border border-white/50 animate-in fade-in zoom-in-95 duration-300">
                 <button
-                    onClick={() => setMode(null)}
+                    onClick={() => { setMode(null); setError(null); }}
                     className="flex items-center gap-2 text-slate-400 hover:text-slate-600 mb-6 text-sm font-medium transition-colors"
                 >
                     <ArrowLeft size={16} />
@@ -79,7 +94,7 @@ export default function ActionCard({ onAction, requireName = true, employees = [
                                 type="text"
                                 placeholder="Full Name"
                                 value={name}
-                                onChange={(e) => setName(e.target.value)}
+                                onChange={(e) => { setName(e.target.value); setError(null); }}
                                 autoFocus
                                 className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-blue-500 focus:outline-none focus:bg-white transition-all placeholder:text-slate-400 font-medium text-slate-700"
                             />
@@ -92,7 +107,7 @@ export default function ActionCard({ onAction, requireName = true, employees = [
                             type="text"
                             placeholder={requireName ? "Employee ID" : "Scan or Type Employee ID"}
                             value={employeeId}
-                            onChange={(e) => setEmployeeId(e.target.value)}
+                            onChange={(e) => { setEmployeeId(e.target.value); setError(null); }}
                             autoFocus={!requireName}
                             className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-blue-500 focus:outline-none focus:bg-white transition-all placeholder:text-slate-400 font-medium text-slate-700"
                         />
@@ -109,6 +124,13 @@ export default function ActionCard({ onAction, requireName = true, employees = [
                         {mode === 'IN' ? <LogIn size={20} /> : <LogOut size={20} />}
                         Confirm {mode === 'IN' ? 'Time In' : 'Time Out'}
                     </button>
+
+                    {error && (
+                        <div className="p-4 bg-rose-50 text-rose-600 text-sm rounded-xl border border-rose-100 animate-in fade-in slide-in-from-top-1 flex items-center gap-3">
+                            <div className="min-w-[4px] h-full bg-rose-400 rounded-full"></div>
+                            <p className="font-medium">{error}</p>
+                        </div>
+                    )}
                 </form>
             </div>
         );
