@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { User, Hash, LogIn, LogOut, ArrowLeft } from 'lucide-react';
 
-export default function ActionCard({ onAction, requireName = true, employees = [] }) {
+export default function ActionCard({ onAction, requireName = true, employees = [], logs = [] }) {
     const [mode, setMode] = useState(null); // 'IN', 'OUT', or null
     const [name, setName] = useState('');
     const [employeeId, setEmployeeId] = useState('');
@@ -47,6 +47,30 @@ export default function ActionCard({ onAction, requireName = true, employees = [
                 } else {
                     setError(`Account not detected. Neither ID "${trimmedId}" nor Name matches.`);
                 }
+                return;
+            }
+        }
+
+        // DUPLICATE CHECK
+        const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD local
+        // Filter logs for this employee and this day
+        const existingLogs = logs.filter(log => {
+            if (String(log.employeeId) !== String(trimmedId)) return false;
+            // Compare dates
+            const logDate = new Date(log.timestamp).toLocaleDateString('en-CA');
+            return logDate === todayStr;
+        });
+
+        if (mode === 'IN') {
+            const hasTimeIn = existingLogs.some(log => log.type === 'IN');
+            if (hasTimeIn) {
+                setError('You have already Timed In today. Duplicate entry prevented.');
+                return;
+            }
+        } else if (mode === 'OUT') {
+            const hasTimeOut = existingLogs.some(log => log.type === 'OUT');
+            if (hasTimeOut) {
+                setError('You have already Timed Out today. Duplicate entry prevented.');
                 return;
             }
         }
