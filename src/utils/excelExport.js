@@ -23,6 +23,16 @@ export const exportLogsToExcel = (logs, selectedDate) => {
 
     // Create worksheet
     const worksheet = XLSX.utils.json_to_sheet(data);
+
+    // Set column widths
+    const wscols = [
+        { wch: 30 }, // Employee Name
+        { wch: 15 }, // Employee ID
+        { wch: 12 }, // Action
+        { wch: 15 }, // Time
+        { wch: 15 }, // Date
+    ];
+    worksheet['!cols'] = wscols;
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Time Logs');
 
