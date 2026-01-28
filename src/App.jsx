@@ -66,7 +66,7 @@ function App() {
 
         {/* Left Side - Action Card */}
         <div className="flex flex-col items-center w-full max-w-md">
-          <ActionCard onAction={handleAction} requireName={appSettings.requireName} />
+          <ActionCard onAction={handleAction} requireName={appSettings.requireName} employees={employees} />
 
           {/* Success Toast */}
           <div className={`mt-8 transition-all duration-500 ${lastAction ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95 pointer-events-none'}`}>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { User, Hash, LogIn, LogOut, ArrowLeft } from 'lucide-react';
 
-export default function ActionCard({ onAction, requireName = true }) {
+export default function ActionCard({ onAction, requireName = true, employees = [] }) {
     const [mode, setMode] = useState(null); // 'IN', 'OUT', or null
     const [name, setName] = useState('');
     const [employeeId, setEmployeeId] = useState('');
@@ -14,14 +14,32 @@ export default function ActionCard({ onAction, requireName = true }) {
             return;
         }
 
-        if (!employeeId.trim()) {
+        const trimmedId = employeeId.trim();
+
+        if (!trimmedId) {
             alert('Please enter your Employee ID');
             return;
         }
 
+        let finalName = name;
+
+        // VALDATION LOGIC
+        if (employees && employees.length > 0) {
+            // Find employee in the database (normalize to string for safety)
+            const found = employees.find(emp => String(emp.EmployeeNo).trim() === String(trimmedId));
+
+            if (!found) {
+                alert(`Employee ID "${trimmedId}" not found in the database. Please contact your administrator.`);
+                return;
+            }
+
+            // Use the consistent name from the database
+            finalName = found.EmployeeName;
+        }
+
         onAction({
-            name: requireName ? name : '',
-            employeeId,
+            name: finalName,
+            employeeId: trimmedId,
             type: mode
         });
 
