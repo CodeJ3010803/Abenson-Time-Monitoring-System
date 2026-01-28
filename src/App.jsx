@@ -1,12 +1,23 @@
-import { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useLogs } from './hooks/useLogs'
 import ActionCard from './components/ActionCard'
 import LogsTable from './components/LogsTable'
-import { Clock } from 'lucide-react'
+import SettingsModal from './components/SettingsModal'
+import { Clock, Settings } from 'lucide-react'
 
 function App() {
   const { logs, addLog, clearLogs } = useLogs()
   const [lastAction, setLastAction] = useState(null)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [appSettings, setAppSettings] = useState(() => {
+    const saved = localStorage.getItem('abenson_time_settings')
+    return saved ? JSON.parse(saved) : { requireName: true }
+  })
+
+  // Save settings whenever they change
+  useEffect(() => {
+    localStorage.setItem('abenson_time_settings', JSON.stringify(appSettings))
+  }, [appSettings])
 
   const handleAction = ({ name, employeeId, type }) => {
     const log = addLog({ name, employeeId, type })
@@ -38,6 +49,14 @@ function App() {
             <p className="text-xs font-bold text-slate-400 tracking-wider">OFFICIAL SYSTEM</p>
           </div>
         </div>
+
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          className="p-3 rounded-xl hover:bg-slate-200/50 text-slate-400 hover:text-slate-600 transition-all active:scale-95"
+          title="Admin Settings"
+        >
+          <Settings size={22} />
+        </button>
       </header>
 
       {/* Main Content */}
@@ -45,7 +64,7 @@ function App() {
 
         {/* Left Side - Action Card */}
         <div className="flex flex-col items-center w-full max-w-md">
-          <ActionCard onAction={handleAction} />
+          <ActionCard onAction={handleAction} requireName={appSettings.requireName} />
 
           {/* Success Toast */}
           <div className={`mt-8 transition-all duration-500 ${lastAction ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95 pointer-events-none'}`}>
@@ -79,6 +98,13 @@ function App() {
       <footer className="relative z-10 p-6 text-center text-slate-400 text-sm font-medium">
         &copy; {new Date().getFullYear()} Abenson Time Monitoring System. All data is stored locally on this device.
       </footer>
+
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        settings={appSettings}
+        onUpdateSettings={setAppSettings}
+      />
     </div>
   )
 }
