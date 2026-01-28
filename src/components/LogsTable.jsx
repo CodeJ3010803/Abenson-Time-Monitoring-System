@@ -83,8 +83,8 @@ export default function LogsTable({ logs, onClear, employees = [] }) {
                                         <tr
                                             key={log.id}
                                             className={`transition-all group border-b border-slate-50 ${isLatest
-                                                    ? 'bg-blue-100/60 shadow-sm relative z-10'
-                                                    : 'hover:bg-blue-50/50'
+                                                ? 'bg-blue-100/60 shadow-sm relative z-10'
+                                                : 'filter blur-[5px] opacity-50 select-none pointer-events-none grayscale'
                                                 }`}
                                         >
                                             <td className={`px-6 text-slate-600 font-mono text-xs font-medium ${isLatest ? 'py-5 font-bold text-blue-700' : 'py-3'}`}>
