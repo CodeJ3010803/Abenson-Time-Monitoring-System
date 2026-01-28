@@ -20,7 +20,7 @@ export default function ActionCard({ onAction, requireName = true }) {
         }
 
         onAction({
-            name: requireName ? name : 'N/A',
+            name: requireName ? name : '',
             employeeId,
             type: mode
         });

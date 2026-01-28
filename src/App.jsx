@@ -77,7 +77,7 @@ function App() {
                 <div>
                   <p className="font-bold text-sm tracking-wide uppercase opacity-80">{lastAction.type === 'IN' ? 'Clocked In' : 'Clocked Out'}</p>
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-lg">{lastAction.name}</span>
+                    <span className="font-medium text-lg">{lastAction.name || `Employee ${lastAction.employeeId}`}</span>
                   </div>
                 </div>
                 <span className="text-xs font-mono ml-4 bg-white/50 px-2 py-1 rounded">

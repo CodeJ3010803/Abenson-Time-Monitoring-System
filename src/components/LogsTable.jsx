@@ -83,15 +83,15 @@ export default function LogsTable({ logs, onClear }) {
                                             {format(parseISO(log.timestamp), 'hh:mm:ss a')}
                                         </td>
                                         <td className="px-6 py-3 text-slate-800 font-medium">
-                                            {log.name}
+                                            {log.name || '-'}
                                         </td>
                                         <td className="px-6 py-3 text-slate-500 text-sm">
                                             {log.employeeId || <span className="text-slate-300 italic">None</span>}
                                         </td>
                                         <td className="px-6 py-3">
                                             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${log.type === 'IN'
-                                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-100 group-hover:bg-emerald-100'
-                                                    : 'bg-rose-50 text-rose-700 border-rose-100 group-hover:bg-rose-100'
+                                                ? 'bg-emerald-50 text-emerald-700 border-emerald-100 group-hover:bg-emerald-100'
+                                                : 'bg-rose-50 text-rose-700 border-rose-100 group-hover:bg-rose-100'
                                                 }`}>
                                                 <span className={`w-1.5 h-1.5 rounded-full ${log.type === 'IN' ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
                                                 {log.type === 'IN' ? 'Time In' : 'Time Out'}
