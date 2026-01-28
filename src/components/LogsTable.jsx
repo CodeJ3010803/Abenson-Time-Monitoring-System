@@ -66,6 +66,7 @@ export default function LogsTable({ logs, onClear, employees = [] }) {
                             <th className="px-6 py-4 font-semibold text-slate-600 text-xs uppercase tracking-wider">Time</th>
                             <th className="px-6 py-4 font-semibold text-slate-600 text-xs uppercase tracking-wider">Name</th>
                             <th className="px-6 py-4 font-semibold text-slate-600 text-xs uppercase tracking-wider">Employee ID</th>
+                            <th className="px-6 py-4 font-semibold text-slate-600 text-xs uppercase tracking-wider">Jacket Size</th>
                             <th className="px-6 py-4 font-semibold text-slate-600 text-xs uppercase tracking-wider">Action</th>
                         </tr>
                     </thead>
@@ -73,31 +74,39 @@ export default function LogsTable({ logs, onClear, employees = [] }) {
                         {filteredLogs.length > 0 ? (
                             filteredLogs
                                 .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)) // Newest first
-                                .map((log) => (
-                                    <tr key={log.id} className="hover:bg-blue-50/50 transition-colors group">
-                                        <td className="px-6 py-3 text-slate-600 font-mono text-xs font-medium">
-                                            {format(parseISO(log.timestamp), 'hh:mm:ss a')}
-                                        </td>
-                                        <td className="px-6 py-3 text-slate-800 font-medium">
-                                            {log.name || '-'}
-                                        </td>
-                                        <td className="px-6 py-3 text-slate-500 text-sm">
-                                            {log.employeeId || <span className="text-slate-300 italic">None</span>}
-                                        </td>
-                                        <td className="px-6 py-3">
-                                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${log.type === 'IN'
-                                                ? 'bg-emerald-50 text-emerald-700 border-emerald-100 group-hover:bg-emerald-100'
-                                                : 'bg-rose-50 text-rose-700 border-rose-100 group-hover:bg-rose-100'
-                                                }`}>
-                                                <span className={`w-1.5 h-1.5 rounded-full ${log.type === 'IN' ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
-                                                {log.type === 'IN' ? 'Time In' : 'Time Out'}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))
+                                .map((log) => {
+                                    const employee = employees.find(e => String(e.EmployeeNo) === String(log.employeeId));
+                                    const jacketSize = employee ? employee.JACKET_SIZE : '-';
+
+                                    return (
+                                        <tr key={log.id} className="hover:bg-blue-50/50 transition-colors group">
+                                            <td className="px-6 py-3 text-slate-600 font-mono text-xs font-medium">
+                                                {format(parseISO(log.timestamp), 'hh:mm:ss a')}
+                                            </td>
+                                            <td className="px-6 py-3 text-slate-800 font-medium">
+                                                {log.name || '-'}
+                                            </td>
+                                            <td className="px-6 py-3 text-slate-500 text-sm">
+                                                {log.employeeId || <span className="text-slate-300 italic">None</span>}
+                                            </td>
+                                            <td className="px-6 py-3 text-slate-500 text-sm">
+                                                {jacketSize}
+                                            </td>
+                                            <td className="px-6 py-3">
+                                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${log.type === 'IN'
+                                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-100 group-hover:bg-emerald-100'
+                                                    : 'bg-rose-50 text-rose-700 border-rose-100 group-hover:bg-rose-100'
+                                                    }`}>
+                                                    <span className={`w-1.5 h-1.5 rounded-full ${log.type === 'IN' ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
+                                                    {log.type === 'IN' ? 'Time In' : 'Time Out'}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
                         ) : (
                             <tr>
-                                <td colSpan={4} className="px-6 py-24 text-center">
+                                <td colSpan={5} className="px-6 py-24 text-center">
                                     <div className="flex flex-col items-center justify-center text-slate-400">
                                         <Calendar size={48} className="mb-4 opacity-20" />
                                         <p className="text-lg font-medium text-slate-500">No logs found</p>
