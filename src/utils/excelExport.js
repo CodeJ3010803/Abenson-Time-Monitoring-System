@@ -2,7 +2,7 @@ import * as XLSX from 'xlsx';
 import { format, isSameDay, parseISO } from 'date-fns';
 
 export const exportLogsToExcel = (logs, selectedDate, employees = [], includeJacket = true) => {
-    // Filter logs for the selected date
+    // 1. Filter logs for the selected date
     const filteredLogs = logs.filter((log) =>
         isSameDay(parseISO(log.timestamp), selectedDate)
     );
@@ -12,25 +12,55 @@ export const exportLogsToExcel = (logs, selectedDate, employees = [], includeJac
         return;
     }
 
-    // Helper to find employee details
-    const getEmployeeDetails = (id) => {
-        if (!id) return {};
-        return employees.find(emp => String(emp.EmployeeNo) === String(id)) || {};
-    };
+    // 2. Sort logs chronologically (oldest first) to ensure times appear in order
+    filteredLogs.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
-    // Format data for Excel
-    const data = filteredLogs.map((log) => {
-        const empDetails = getEmployeeDetails(log.employeeId);
+    // 3. Group logs by Employee ID
+    const groupedLogs = {};
 
-        // Use name from log if available (manual entry), otherwise fallback to DB name
-        const finalName = log.name || empDetails.EmployeeName || '';
+    filteredLogs.forEach(log => {
+        // Use ID as key, or 'UNKNOWN' if missing (though unlikely given logic)
+        const key = log.employeeId ? String(log.employeeId) : 'UNKNOWN';
+
+        if (!groupedLogs[key]) {
+            groupedLogs[key] = {
+                logs: [],
+                employeeId: log.employeeId,
+                // Capture the first non-empty name available, or fallback later
+                name: log.name
+            };
+        }
+        groupedLogs[key].logs.push(log);
+        // Update name if we didn't have one and this log has one
+        if (!groupedLogs[key].name && log.name) {
+            groupedLogs[key].name = log.name;
+        }
+    });
+
+    // 4. Transform groups into Excel rows
+    const data = Object.values(groupedLogs).map(group => {
+        // Find employee details from DB
+        const empDetails = employees.find(emp => String(emp.EmployeeNo) === String(group.employeeId)) || {};
+
+        // Determine final display name: DB Name > Log Name > 'N/A'
+        const finalName = empDetails.EmployeeName || group.name || 'N/A';
+        const finalId = group.employeeId || 'N/A';
+
+        // Extract Times
+        const timeIns = group.logs
+            .filter(l => l.type === 'IN')
+            .map(l => format(parseISO(l.timestamp), 'hh:mm:ss a'));
+
+        const timeOuts = group.logs
+            .filter(l => l.type === 'OUT')
+            .map(l => format(parseISO(l.timestamp), 'hh:mm:ss a'));
 
         const row = {
-            'EmployeeNo': log.employeeId || 'N/A',
+            'EmployeeNo': finalId,
             'EmployeeName': finalName,
-            'Action': log.type === 'IN' ? 'Time In' : 'Time Out',
-            'Time': format(parseISO(log.timestamp), 'hh:mm:ss a'),
-            'Date': format(parseISO(log.timestamp), 'yyyy-MM-dd'),
+            'Date': format(selectedDate, 'yyyy-MM-dd'),
+            'Time In': timeIns.join(', '),   // e.g. "08:00 AM" or "08:00 AM, 01:00 PM"
+            'Time Out': timeOuts.join(', '), // e.g. "05:00 PM"
         };
 
         if (includeJacket) {
@@ -40,16 +70,16 @@ export const exportLogsToExcel = (logs, selectedDate, employees = [], includeJac
         return row;
     });
 
-    // Create worksheet
+    // 5. Create worksheet
     const worksheet = XLSX.utils.json_to_sheet(data);
 
-    // Set column widths
+    // 6. Set column widths
     const wscols = [
         { wch: 15 }, // EmployeeNo
         { wch: 30 }, // EmployeeName
-        { wch: 12 }, // Action
-        { wch: 15 }, // Time
         { wch: 15 }, // Date
+        { wch: 20 }, // Time In
+        { wch: 20 }, // Time Out
     ];
 
     if (includeJacket) {
@@ -58,7 +88,7 @@ export const exportLogsToExcel = (logs, selectedDate, employees = [], includeJac
 
     worksheet['!cols'] = wscols;
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Time Logs');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'attendance_report');
 
     // Export
     XLSX.writeFile(workbook, `TimeLogs_${format(selectedDate, 'yyyy-MM-dd')}.xlsx`);
