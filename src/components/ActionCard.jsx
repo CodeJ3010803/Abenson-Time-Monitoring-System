@@ -26,7 +26,6 @@ export default function ActionCard({ onAction, requireName = true }) {
         });
 
         // Reset
-        setMode(null);
         setName('');
         setEmployeeId('');
     };
