@@ -1,7 +1,34 @@
-import React, { useState } from 'react';
-import { Download, Calendar, Trash2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Download, Calendar } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { exportLogsToExcel } from '../utils/excelExport';
+
+const LiveClock = () => {
+    const [time, setTime] = useState(new Date());
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setTime(new Date());
+        }, 30);
+        return () => clearInterval(timer);
+    }, []);
+
+    return (
+        <div className="flex flex-col select-none">
+            <div className="flex items-baseline gap-1">
+                <span className="text-4xl font-black font-mono text-slate-800 tracking-tighter">
+                    {format(time, 'HH:mm:ss')}
+                </span>
+                <span className="text-xl font-mono font-medium text-slate-400 w-[4ch]">
+                    .{format(time, 'SSS')}
+                </span>
+            </div>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">
+                {format(time, 'MMMM dd, yyyy')}
+            </span>
+        </div>
+    );
+};
 
 export default function LogsTable({ logs, onClear, employees = [] }) {
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
@@ -29,32 +56,29 @@ export default function LogsTable({ logs, onClear, employees = [] }) {
 
     return (
         <div className="w-full bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-slate-200/50 border border-white/50 flex flex-col h-[calc(100vh-210px)] animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="p-6 border-b border-slate-100 flex flex-wrap gap-4 items-center justify-between">
-                <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                    <Calendar className="text-blue-500" size={24} />
-                    Attendance Logs
-                </h3>
+            <div className="p-6 border-b border-slate-100 flex flex-col lg:flex-row gap-6 items-center justify-between">
+                <LiveClock />
 
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                    <div className="px-4 py-2 bg-blue-50 border border-blue-100 rounded-xl flex items-center gap-2">
+                        <span className="text-xs uppercase font-bold text-blue-400 tracking-wider">Total Logs</span>
+                        <span className="text-xl font-bold text-blue-700">{filteredLogs.length}</span>
+                    </div>
+
+                    <div className="h-8 w-px bg-slate-200 mx-2 hidden sm:block"></div>
+
                     <input
                         type="date"
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
-                        className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:border-blue-500 transition-colors text-sm font-medium"
+                        className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:border-blue-500 transition-colors text-sm font-medium"
                     />
                     <button
                         onClick={handleExport}
-                        className="flex items-center gap-2 bg-slate-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-slate-700 transition-colors shadow-lg shadow-slate-500/20 active:scale-95"
+                        className="flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20 active:scale-95 hover:shadow-xl"
                     >
                         <Download size={18} />
                         Export Excel
-                    </button>
-                    <button
-                        onClick={onClear}
-                        className="p-2 text-slate-400 hover:text-rose-500 transition-colors rounded-lg hover:bg-rose-50"
-                        title="Clear All Logs"
-                    >
-                        <Trash2 size={18} />
                     </button>
                 </div>
             </div>
