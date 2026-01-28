@@ -123,7 +123,7 @@ function App() {
         </div>
 
         {/* Right Side - Logs Table */}
-        <div className="flex-1 w-full max-w-4xl flex items-center justify-center h-full">
+        <div className="flex-1 w-full max-w-7xl flex items-center justify-center h-full">
           <LogsTable logs={logs} onClear={clearLogs} employees={employees} />
         </div>
 

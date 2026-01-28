@@ -28,7 +28,7 @@ export default function LogsTable({ logs, onClear, employees = [] }) {
     };
 
     return (
-        <div className="w-full max-w-4xl bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-slate-200/50 border border-white/50 flex flex-col h-[600px] animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="w-full bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-slate-200/50 border border-white/50 flex flex-col h-[calc(100vh-210px)] animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="p-6 border-b border-slate-100 flex flex-wrap gap-4 items-center justify-between">
                 <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
                     <Calendar className="text-blue-500" size={24} />
@@ -74,29 +74,36 @@ export default function LogsTable({ logs, onClear, employees = [] }) {
                         {filteredLogs.length > 0 ? (
                             filteredLogs
                                 .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)) // Newest first
-                                .map((log) => {
+                                .map((log, index) => {
                                     const employee = employees.find(e => String(e.EmployeeNo) === String(log.employeeId));
                                     const jacketSize = employee ? employee.JACKET_SIZE : '-';
+                                    const isLatest = index === 0;
 
                                     return (
-                                        <tr key={log.id} className="hover:bg-blue-50/50 transition-colors group">
-                                            <td className="px-6 py-3 text-slate-600 font-mono text-xs font-medium">
+                                        <tr
+                                            key={log.id}
+                                            className={`transition-all group border-b border-slate-50 ${isLatest
+                                                    ? 'bg-blue-100/60 shadow-sm relative z-10'
+                                                    : 'hover:bg-blue-50/50'
+                                                }`}
+                                        >
+                                            <td className={`px-6 text-slate-600 font-mono text-xs font-medium ${isLatest ? 'py-5 font-bold text-blue-700' : 'py-3'}`}>
                                                 {format(parseISO(log.timestamp), 'hh:mm:ss a')}
                                             </td>
-                                            <td className="px-6 py-3 text-slate-800 font-medium">
+                                            <td className={`px-6 text-slate-800 font-medium ${isLatest ? 'py-5 font-bold text-lg' : 'py-3'}`}>
                                                 {log.name || '-'}
                                             </td>
-                                            <td className="px-6 py-3 text-slate-500 text-sm">
+                                            <td className={`px-6 text-slate-500 text-sm ${isLatest ? 'py-5 font-semibold text-slate-600' : 'py-3'}`}>
                                                 {log.employeeId || <span className="text-slate-300 italic">None</span>}
                                             </td>
-                                            <td className="px-6 py-3 text-slate-500 text-sm">
+                                            <td className={`px-6 text-slate-500 text-sm ${isLatest ? 'py-5 font-semibold text-slate-600' : 'py-3'}`}>
                                                 {jacketSize}
                                             </td>
-                                            <td className="px-6 py-3">
+                                            <td className={`px-6 ${isLatest ? 'py-5' : 'py-3'}`}>
                                                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${log.type === 'IN'
                                                     ? 'bg-emerald-50 text-emerald-700 border-emerald-100 group-hover:bg-emerald-100'
                                                     : 'bg-rose-50 text-rose-700 border-rose-100 group-hover:bg-rose-100'
-                                                    }`}>
+                                                    } ${isLatest ? 'scale-110 shadow-sm' : ''}`}>
                                                     <span className={`w-1.5 h-1.5 rounded-full ${log.type === 'IN' ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
                                                     {log.type === 'IN' ? 'Time In' : 'Time Out'}
                                                 </span>
