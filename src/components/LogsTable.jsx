@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Calendar } from 'lucide-react';
+import { Download, Calendar, Trash2 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { exportLogsToExcel } from '../utils/excelExport';
 
@@ -61,8 +61,10 @@ export default function LogsTable({ logs, onClear, employees = [], showJacket = 
 
                 <div className="flex flex-wrap items-center justify-center gap-3">
                     <div className="px-4 py-2 bg-blue-50 border border-blue-100 rounded-xl flex items-center gap-2">
-                        <span className="text-xs uppercase font-bold text-blue-400 tracking-wider">Total Logs</span>
-                        <span className="text-xl font-bold text-blue-700">{filteredLogs.length}</span>
+                        <span className="text-xs uppercase font-bold text-blue-400 tracking-wider">Head Count</span>
+                        <span className="text-xl font-bold text-blue-700">
+                            {new Set(filteredLogs.map(log => log.employeeId)).size}
+                        </span>
                     </div>
 
                     <div className="h-8 w-px bg-slate-200 mx-2 hidden sm:block"></div>
@@ -79,6 +81,13 @@ export default function LogsTable({ logs, onClear, employees = [], showJacket = 
                     >
                         <Download size={18} />
                         Export Excel
+                    </button>
+                    <button
+                        onClick={onClear}
+                        className="p-2.5 text-slate-400 hover:text-rose-500 transition-colors rounded-xl hover:bg-rose-50 border border-transparent hover:border-rose-100"
+                        title="Clear All Logs"
+                    >
+                        <Trash2 size={20} />
                     </button>
                 </div>
             </div>
