@@ -4,11 +4,18 @@ import { useEmployees } from './hooks/useEmployees'
 import ActionCard from './components/ActionCard'
 import LogsTable from './components/LogsTable'
 import SettingsModal from './components/SettingsModal'
-import { Clock, Settings } from 'lucide-react'
+import LandingPage from './components/LandingPage'
+import { Clock, Settings, ArrowLeft, Home } from 'lucide-react'
 
 function App() {
-  const { logs, addLog, clearLogs } = useLogs()
+  const [systemMode, setSystemMode] = useState(null) // 'AA' or 'TRAINING' or null
+
+  // Determine storage key based on mode
+  const storageKey = systemMode === 'TRAINING' ? 'abenson_training_logs' : 'abenson_time_logs'
+
+  const { logs, addLog, clearLogs } = useLogs(storageKey)
   const { employees, saveEmployees } = useEmployees()
+
   const [lastAction, setLastAction] = useState(null)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [appSettings, setAppSettings] = useState(() => {
@@ -31,8 +38,14 @@ function App() {
     }, 3000)
   }
 
+  // Render Landing Page if no mode selected
+  if (!systemMode) {
+    return <LandingPage onSelect={setSystemMode} />
+  }
+
+  // Dashboard UI
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-slate-50 flex flex-col relative overflow-hidden font-sans animate-in fade-in duration-500">
       {/* Background decorations */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
         <div className="absolute -top-[20%] -left-[10%] w-[70vw] h-[70vw] rounded-full bg-blue-400/20 blur-[120px] mix-blend-multiply filter opacity-50 animate-blob"></div>
@@ -43,22 +56,39 @@ function App() {
       {/* Header */}
       <header className="relative z-10 w-full p-6 lg:px-12 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-500/30 border border-blue-500 flex items-center justify-center w-12 h-12">
-            <span className="text-white font-bold text-2xl pb-1">a.</span>
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700">Abenson Time Monitor</h1>
-            <p className="text-xs font-bold text-slate-400 tracking-wider">OFFICIAL SYSTEM</p>
-          </div>
+          <button
+            onClick={() => setSystemMode(null)}
+            className="group flex items-center gap-3 p-2 pr-4 rounded-xl hover:bg-white/50 border border-transparent hover:border-white/50 transition-all"
+            title="Back to Menu"
+          >
+            <div className={`p-2.5 rounded-xl shadow-lg border flex items-center justify-center w-12 h-12 transition-colors ${systemMode === 'TRAINING'
+                ? 'bg-purple-600 shadow-purple-500/30 border-purple-500 text-white'
+                : 'bg-blue-600 shadow-blue-500/30 border-blue-500 text-white'
+              }`}>
+              {/* <span className="font-bold text-2xl pb-1">a.</span> */}
+              <ArrowLeft size={24} />
+            </div>
+
+            <div className="text-left hidden md:block">
+              <h1 className="text-xl font-bold text-slate-800 leading-tight">
+                {systemMode === 'TRAINING' ? 'Training Attendance' : 'Abenson Time Monitor'}
+              </h1>
+              <p className="text-xs font-bold text-slate-400 tracking-wider">
+                {systemMode === 'TRAINING' ? 'SEMINAR / WORKSHOP' : 'OFFICIAL SYSTEM'}
+              </p>
+            </div>
+          </button>
         </div>
 
-        <button
-          onClick={() => setIsSettingsOpen(true)}
-          className="p-3 rounded-xl hover:bg-slate-200/50 text-slate-400 hover:text-slate-600 transition-all active:scale-95"
-          title="Admin Settings"
-        >
-          <Settings size={22} />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsSettingsOpen(true)}
+            className="p-3 rounded-xl hover:bg-slate-200/50 text-slate-400 hover:text-slate-600 transition-all active:scale-95"
+            title="Admin Settings"
+          >
+            <Settings size={22} />
+          </button>
+        </div>
       </header>
 
       {/* Main Content */}
