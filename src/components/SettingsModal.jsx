@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { X, Check, Upload, Database, FileSpreadsheet, Loader2 } from 'lucide-react';
+import { X, Check, Upload, Database, FileSpreadsheet, Loader2, Trash2 } from 'lucide-react';
 import { parseEmployeeFile } from '../utils/excelImport';
 
-export default function SettingsModal({ isOpen, onClose, settings, onUpdateSettings, onImportEmployees, totalEmployees }) {
+export default function SettingsModal({ isOpen, onClose, settings, onUpdateSettings, onImportEmployees, onClearEmployees, totalEmployees }) {
     const [isLoading, setIsLoading] = useState(false);
     const [importStatus, setImportStatus] = useState(null); // { type: 'success' | 'error', message: '' }
 
@@ -38,36 +38,7 @@ export default function SettingsModal({ isOpen, onClose, settings, onUpdateSetti
                 </div>
 
                 <div className="p-6 space-y-8">
-                    {/* General Settings */}
-                    <div>
-                        <label className="text-sm font-bold text-slate-700 mb-3 block">Input Requirement</label>
-                        <div className="grid grid-cols-1 gap-3">
-                            <button
-                                onClick={() => onUpdateSettings({ ...settings, requireName: true })}
-                                className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all ${settings.requireName
-                                    ? 'border-blue-500 bg-blue-50/50 text-blue-700'
-                                    : 'border-slate-100 hover:border-slate-200 text-slate-600'
-                                    }`}
-                            >
-                                <span className="font-medium">Name & Employee ID</span>
-                                {settings.requireName && <Check size={20} className="text-blue-500" />}
-                            </button>
-
-                            <button
-                                onClick={() => onUpdateSettings({ ...settings, requireName: false })}
-                                className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all ${!settings.requireName
-                                    ? 'border-blue-500 bg-blue-50/50 text-blue-700'
-                                    : 'border-slate-100 hover:border-slate-200 text-slate-600'
-                                    }`}
-                            >
-                                <div className="text-left">
-                                    <span className="font-medium block">Employee ID Only</span>
-                                    <span className="text-xs opacity-70">Faster logging, no name required</span>
-                                </div>
-                                {!settings.requireName && <Check size={20} className="text-blue-500" />}
-                            </button>
-                        </div>
-                    </div>
+                    {/* Database Settings */}
 
                     {/* Database Settings */}
                     <div>
@@ -78,9 +49,20 @@ export default function SettingsModal({ isOpen, onClose, settings, onUpdateSetti
                         <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
                             <div className="flex items-center justify-between mb-4">
                                 <span className="text-sm text-slate-500">Total Records</span>
-                                <span className="text-sm font-bold text-slate-800 bg-white px-2 py-1 rounded border border-slate-200 min-w-[2rem] text-center">
-                                    {totalEmployees || 0}
-                                </span>
+                                <div className="flex items-center">
+                                    <span className="text-sm font-bold text-slate-800 bg-white px-2 py-1 rounded border border-slate-200 min-w-[2rem] text-center">
+                                        {totalEmployees || 0}
+                                    </span>
+                                    {totalEmployees > 0 && (
+                                        <button
+                                            onClick={onClearEmployees}
+                                            className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors ml-2"
+                                            title="Clear Database"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
 
                             <label className="group relative flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-300 rounded-xl hover:bg-white hover:border-blue-400 transition-all cursor-pointer">

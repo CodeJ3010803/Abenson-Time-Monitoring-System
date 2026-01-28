@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const STORAGE_KEY = 'abenson_employee_db';
+const STORAGE_KEY = 'abenson_employee_db_v3';
 
 export const useEmployees = () => {
     const [employees, setEmployees] = useState(() => {

@@ -14,7 +14,7 @@ function App() {
   const storageKey = systemMode === 'TRAINING' ? 'abenson_training_logs' : 'abenson_time_logs'
 
   const { logs, addLog, clearLogs } = useLogs(storageKey)
-  const { employees, saveEmployees } = useEmployees()
+  const { employees, saveEmployees, clearEmployees } = useEmployees()
 
   const [lastAction, setLastAction] = useState(null)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
@@ -62,8 +62,8 @@ function App() {
             title="Back to Menu"
           >
             <div className={`p-2.5 rounded-xl shadow-lg border flex items-center justify-center w-12 h-12 transition-colors ${systemMode === 'TRAINING'
-                ? 'bg-purple-600 shadow-purple-500/30 border-purple-500 text-white'
-                : 'bg-blue-600 shadow-blue-500/30 border-blue-500 text-white'
+              ? 'bg-purple-600 shadow-purple-500/30 border-purple-500 text-white'
+              : 'bg-blue-600 shadow-blue-500/30 border-blue-500 text-white'
               }`}>
               {/* <span className="font-bold text-2xl pb-1">a.</span> */}
               <ArrowLeft size={24} />
@@ -71,11 +71,13 @@ function App() {
 
             <div className="text-left hidden md:block">
               <h1 className="text-xl font-bold text-slate-800 leading-tight">
-                {systemMode === 'TRAINING' ? 'Training Attendance' : 'Abenson Time Monitor'}
+                {systemMode === 'TRAINING' ? 'Training Attendance' : 'Attendance Recording System'}
               </h1>
-              <p className="text-xs font-bold text-slate-400 tracking-wider">
-                {systemMode === 'TRAINING' ? 'SEMINAR / WORKSHOP' : 'OFFICIAL SYSTEM'}
-              </p>
+              {systemMode === 'TRAINING' && (
+                <p className="text-xs font-bold text-slate-400 tracking-wider">
+                  SEMINAR / WORKSHOP
+                </p>
+              )}
             </div>
           </button>
         </div>
@@ -96,7 +98,7 @@ function App() {
 
         {/* Left Side - Action Card */}
         <div className="flex flex-col items-center w-full max-w-md">
-          <ActionCard onAction={handleAction} requireName={appSettings.requireName} employees={employees} logs={logs} />
+          <ActionCard onAction={handleAction} requireName={false} employees={employees} logs={logs} />
 
           {/* Success Toast */}
           <div className={`mt-8 transition-all duration-500 ${lastAction ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95 pointer-events-none'}`}>
@@ -137,6 +139,7 @@ function App() {
         settings={appSettings}
         onUpdateSettings={setAppSettings}
         onImportEmployees={saveEmployees}
+        onClearEmployees={clearEmployees}
         totalEmployees={employees.length}
       />
     </div>
