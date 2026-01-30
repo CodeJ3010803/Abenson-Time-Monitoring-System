@@ -28,8 +28,8 @@ function App() {
     localStorage.setItem('abenson_time_settings', JSON.stringify(appSettings))
   }, [appSettings])
 
-  const handleAction = ({ name, employeeId, type }) => {
-    const log = addLog({ name, employeeId, type })
+  const handleAction = async ({ name, employeeId, type }) => {
+    const log = await addLog({ name, employeeId, type })
     setLastAction({ ...log, message: `Successfully ${type === 'IN' ? 'Time In' : 'Time Out'}!` })
 
     // Clear success message after 3 seconds

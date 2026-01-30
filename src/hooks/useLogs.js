@@ -1,50 +1,113 @@
+
 import { useState, useEffect } from 'react';
+import { supabase } from '../supabaseClient';
 
-const DEFAULT_KEY = 'abenson_time_logs';
+export const useLogs = (storageKey = 'abenson_time_logs') => {
+    const [logs, setLogs] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-export const useLogs = (storageKey = DEFAULT_KEY) => {
-    // We need to fetch from formatted key whenever it changes, but useState entry only runs once.
-    // So we should actually use a simplified approach or just effect to load.
-    // However, for React hook rules, we usually want stable initialization.
-    // Let's rely on the key changing forcing a re-mount of the component using it, OR use useEffect to swap data.
-    // Since App.jsx will conditionally render based on mode, a new component tree effectively is created or we can force key in App.
-    // Actually, simpler: The App will pass the key. If the key changes, we want to reload logs.
+    // Determine category based on storageKey
+    // abenson_training_logs -> TRAINING
+    // abenson_time_logs (or default) -> AA
+    const category = storageKey === 'abenson_training_logs' ? 'TRAINING' : 'AA';
 
-    // Better pattern for dynamic key in hook:
-    const [logs, setLogs] = useState(() => {
+    useEffect(() => {
+        fetchLogs();
+
+        // Optional: Real-time subscription could go here in the future
+        // const channel = supabase.channel('logs_channel_' + category)
+        //   .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'logs', filter: `category=eq.${category}` }, payload => {
+        //     setLogs(prev => [payload.new, ...prev])
+        //   })
+        //   .subscribe()
+        // return () => supabase.removeChannel(channel)
+
+    }, [category]);
+
+    const fetchLogs = async () => {
         try {
-            const stored = localStorage.getItem(storageKey);
-            return stored ? JSON.parse(stored) : [];
-        } catch (e) {
-            return [];
+            setLoading(true);
+            const { data, error } = await supabase
+                .from('logs')
+                .select('*')
+                .eq('category', category)
+                .order('timestamp', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching logs:', error);
+                return;
+            }
+
+            // Map DB columns to app state shape
+            // DB: employee_id -> app: employeeId
+            const formattedLogs = (data || []).map(log => ({
+                ...log,
+                employeeId: log.employee_id
+            }));
+
+            setLogs(formattedLogs);
+        } catch (error) {
+            console.error('Error in fetchLogs:', error);
+        } finally {
+            setLoading(false);
         }
-    });
+    };
 
-    // If param key changes, we need to reload. 
-    // BUT useState initial value only runs on mount.
-    // We'll add an effect to sync when key changes.
-    useEffect(() => {
-        const stored = localStorage.getItem(storageKey);
-        setLogs(stored ? JSON.parse(stored) : []);
-    }, [storageKey]);
+    const addLog = async (logData) => {
+        const timestamp = new Date().toISOString();
+        const newLog = {
+            ...logData,
+            id: crypto.randomUUID(),
+            timestamp,
+            category
+        };
 
-    useEffect(() => {
-        if (logs) {
-            localStorage.setItem(storageKey, JSON.stringify(logs));
-        }
-    }, [logs, storageKey]);
-
-    const addLog = (log) => {
-        const newLog = { ...log, id: crypto.randomUUID(), timestamp: new Date().toISOString() };
+        // Optimistic update
         setLogs((prev) => [newLog, ...prev]);
+
+        try {
+            const { error } = await supabase
+                .from('logs')
+                .insert([
+                    {
+                        employee_id: logData.employeeId, // Map to column name
+                        name: logData.name,
+                        type: logData.type,
+                        timestamp: timestamp,
+                        category: category
+                    }
+                ]);
+
+            if (error) {
+                throw error;
+            }
+            // Success
+        } catch (error) {
+            console.error('Error adding log to Supabase:', error);
+            alert('Failed to save log to cloud. It may disappear on refresh.');
+            // In a real app, we might tag this log as "unsynced" in local state
+        }
+
         return newLog;
     };
 
-    const clearLogs = () => {
-        if (confirm('Are you sure you want to clear all logs for this session?')) {
-            setLogs([]);
+    const clearLogs = async () => {
+        if (confirm('Are you sure you want to DELETE ALL LOGS from the database for this mode? This cannot be undone.')) {
+            try {
+                const { error } = await supabase
+                    .from('logs')
+                    .delete()
+                    .eq('category', category);
+
+                if (error) throw error;
+
+                setLogs([]);
+            } catch (error) {
+                console.error('Error clearing logs:', error);
+                alert('Failed to clear logs from database.');
+            }
         }
     };
 
-    return { logs, addLog, clearLogs };
+    return { logs, addLog, clearLogs, loading };
 };
