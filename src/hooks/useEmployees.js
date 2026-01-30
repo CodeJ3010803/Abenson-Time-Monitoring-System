@@ -25,7 +25,7 @@ export const useEmployees = () => {
             // Map DB snake_case to App PascalCase/Caps
             const formatted = data.map(e => ({
                 EmployeeNo: e.employee_no,
-                Name: e.name,
+                EmployeeName: e.name, // Map DB 'name' to App 'EmployeeName'
                 Department: e.department,
                 Position: e.position,
                 JACKET_SIZE: e.jacket_size
@@ -46,7 +46,7 @@ export const useEmployees = () => {
         // Map App PascalCase to DB snake_case
         const dbRows = newEmployees.map(e => ({
             employee_no: String(e.EmployeeNo), // Ensure string
-            name: e.Name,
+            name: e.EmployeeName || e.Name, // Handle both just in case
             department: e.Department,
             position: e.Position,
             jacket_size: e.JACKET_SIZE
