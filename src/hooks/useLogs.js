@@ -31,7 +31,8 @@ export const useLogs = (storageKey = 'abenson_time_logs') => {
                 .from('logs')
                 .select('*')
                 .eq('category', category)
-                .order('timestamp', { ascending: false });
+                .order('timestamp', { ascending: false })
+                .range(0, 9999);
 
             if (error) {
                 console.error('Error fetching logs:', error);

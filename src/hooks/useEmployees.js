@@ -15,7 +15,8 @@ export const useEmployees = () => {
             setLoading(true);
             const { data, error } = await supabase
                 .from('employees')
-                .select('*');
+                .select('*')
+                .range(0, 9999);
 
             if (error) {
                 console.error('Error fetching employees:', error);
