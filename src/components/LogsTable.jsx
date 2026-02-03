@@ -110,6 +110,9 @@ export default function LogsTable({ logs, onClear, employees = [], showJacket = 
                                 .map((log, index) => {
                                     const employee = employees.find(e => String(e.EmployeeNo) === String(log.employeeId));
                                     const jacketSize = employee ? employee.JACKET_SIZE : '-';
+                                    // Fix: Use employee name from DB if available, otherwise fallback to log.name.
+                                    // This fixes issues where log.name was missing or null.
+                                    const displayName = employee ? employee.EmployeeName : (log.name || '-');
                                     const isLatest = index === 0;
 
                                     return (
@@ -124,7 +127,7 @@ export default function LogsTable({ logs, onClear, employees = [], showJacket = 
                                                 {format(parseISO(log.timestamp), 'hh:mm:ss a')}
                                             </td>
                                             <td className={`px-6 text-slate-800 font-medium ${isLatest ? 'py-5 font-bold text-lg' : 'py-3'}`}>
-                                                {log.name || '-'}
+                                                {displayName}
                                             </td>
                                             <td className={`px-6 text-slate-500 text-sm ${isLatest ? 'py-5 font-semibold text-slate-600' : 'py-3'}`}>
                                                 {log.employeeId || <span className="text-slate-300 italic">None</span>}

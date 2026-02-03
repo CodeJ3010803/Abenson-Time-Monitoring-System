@@ -130,7 +130,7 @@ function App() {
       </main>
 
       <footer className="relative z-10 p-6 text-center text-slate-400 text-sm font-medium">
-        &copy; {new Date().getFullYear()} Abenson Time Monitoring System. All data is stored locally on this device.
+        &copy; {new Date().getFullYear()} Abenson Time Monitoring System. System Connected to Cloud Database.
       </footer>
 
       <SettingsModal
