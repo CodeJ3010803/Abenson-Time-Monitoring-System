@@ -8,7 +8,20 @@ import LandingPage from './components/LandingPage'
 import { Clock, Settings, ArrowLeft, Home } from 'lucide-react'
 
 function App() {
-  const [systemMode, setSystemMode] = useState(null) // 'AA' or 'TRAINING' or null
+  const [systemMode, setSystemMode] = useState(() => {
+    // Initialize from localStorage if available
+    return localStorage.getItem('abenson_system_mode') || null
+  })
+
+  // Update both state and localStorage
+  const handleSystemModeChange = (mode) => {
+    setSystemMode(mode)
+    if (mode) {
+      localStorage.setItem('abenson_system_mode', mode)
+    } else {
+      localStorage.removeItem('abenson_system_mode')
+    }
+  }
 
   // Determine storage key based on mode
   const storageKey = systemMode === 'TRAINING' ? 'abenson_training_logs' : 'abenson_time_logs'
@@ -40,7 +53,7 @@ function App() {
 
   // Render Landing Page if no mode selected
   if (!systemMode) {
-    return <LandingPage onSelect={setSystemMode} />
+    return <LandingPage onSelect={handleSystemModeChange} />
   }
 
   // Dashboard UI
@@ -57,7 +70,7 @@ function App() {
       <header className="relative z-10 w-full p-6 lg:px-12 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => setSystemMode(null)}
+            onClick={() => handleSystemModeChange(null)}
             className="group flex items-center gap-3 p-2 pr-4 rounded-xl hover:bg-white/50 border border-transparent hover:border-white/50 transition-all"
             title="Back to Menu"
           >
