@@ -13,18 +13,37 @@ export const useEmployees = () => {
     const fetchEmployees = async () => {
         try {
             setLoading(true);
-            const { data, error } = await supabase
-                .from('employees')
-                .select('*')
-                .range(0, 9999);
+            let allData = [];
+            let page = 0;
+            const pageSize = 1000;
+            let hasMore = true;
 
-            if (error) {
-                console.error('Error fetching employees:', error);
-                return;
+            while (hasMore) {
+                const { data, error } = await supabase
+                    .from('employees')
+                    .select('*')
+                    .range(page * pageSize, (page + 1) * pageSize - 1);
+
+                if (error) {
+                    console.error('Error fetching employees:', error);
+                    return;
+                }
+
+                if (data.length > 0) {
+                    allData = [...allData, ...data];
+                    // If we got fewer than pageSize records, we've reached the end
+                    if (data.length < pageSize) {
+                        hasMore = false;
+                    } else {
+                        page++;
+                    }
+                } else {
+                    hasMore = false;
+                }
             }
 
             // Map DB snake_case to App PascalCase/Caps
-            const formatted = data.map(e => ({
+            const formatted = allData.map(e => ({
                 EmployeeNo: e.employee_no,
                 EmployeeName: e.name, // Map DB 'name' to App 'EmployeeName'
                 Department: e.department,
