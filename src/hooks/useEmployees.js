@@ -44,27 +44,33 @@ export const useEmployees = () => {
         // Optimistic update
         setEmployees(newEmployees);
 
-        // Map App PascalCase to DB snake_case
+        // Map App PascalCase to DB snake_case and ensure clean data
         const dbRows = newEmployees.map(e => ({
-            employee_no: String(e.EmployeeNo), // Ensure string
-            name: e.EmployeeName || e.Name, // Handle both just in case
-            department: e.Department,
-            position: e.Position,
-            jacket_size: e.JACKET_SIZE
+            employee_no: String(e.EmployeeNo).trim(),
+            name: String(e.EmployeeName || e.Name).trim(),
+            department: e.Department ? String(e.Department).trim() : null,
+            position: e.Position ? String(e.Position).trim() : null,
+            jacket_size: e.JACKET_SIZE ? String(e.JACKET_SIZE).trim() : null
         }));
 
         try {
-            // Upsert based on employee_no being a unique constraint
-            const { error } = await supabase
-                .from('employees')
-                .upsert(dbRows, { onConflict: 'employee_no' });
+            // Batch process upserts to avoid payload limits
+            // Supabase/PostgREST can handle large payloads, but chunks of 500-1000 are safer for network stability.
+            const BATCH_SIZE = 500;
+            for (let i = 0; i < dbRows.length; i += BATCH_SIZE) {
+                const chunk = dbRows.slice(i, i + BATCH_SIZE);
 
-            if (error) throw error;
+                const { error } = await supabase
+                    .from('employees')
+                    .upsert(chunk, { onConflict: 'employee_no' });
 
-            // Re-fetch to sync IDs or just rely on optimistic
+                if (error) throw error;
+            }
+
+            // Re-fetch to ensure sync (optional but good practice)
         } catch (error) {
             console.error('Error saving employees:', error);
-            alert('Failed to save employees to database.');
+            alert('Failed to save employees to database. Please check your internet connection.');
         }
     };
 

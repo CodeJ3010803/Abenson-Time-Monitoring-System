@@ -27,9 +27,9 @@ export const parseEmployeeFile = (file) => {
                     // Let's look for standard keys.
 
                     return {
-                        EmployeeNo: row['EmployeeNo'] || row['Employee No'] || row['EmployeeID'] || '',
-                        EmployeeName: row['EmployeeName'] || row['Employee Name'] || '',
-                        JACKET_SIZE: row['JACKET SIZE'] || row['Jacket Size'] || row['JACKET'] || row['Jacket'] || ''
+                        EmployeeNo: String(row['EmployeeNo'] || row['Employee No'] || row['EmployeeID'] || '').trim(),
+                        EmployeeName: String(row['EmployeeName'] || row['Employee Name'] || '').trim(),
+                        JACKET_SIZE: String(row['JACKET SIZE'] || row['Jacket Size'] || row['JACKET'] || row['Jacket'] || '').trim()
                     };
                 }).filter(item => item.EmployeeNo); // Filter out empty rows
 
