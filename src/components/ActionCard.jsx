@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { User, Hash, LogIn, LogOut, ArrowLeft } from 'lucide-react';
 
-export default function ActionCard({ onAction, requireName = true, employees = [], logs = [], allowMultipleLogs = false }) {
+export default function ActionCard({ onAction, requireName = true, employees = [], logs = [], allowMultipleLogs = false, isLoading = false }) {
     const [mode, setMode] = useState(null); // 'IN', 'OUT', or null
     const [name, setName] = useState('');
     const [employeeId, setEmployeeId] = useState('');
@@ -142,14 +142,20 @@ export default function ActionCard({ onAction, requireName = true, employees = [
 
                     <button
                         type="submit"
+                        disabled={isLoading}
                         className={`w-full py-4 rounded-xl font-bold text-white shadow-lg transform transition-all active:scale-95 flex items-center justify-center gap-2
+                            ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
                             ${mode === 'IN'
                                 ? 'bg-gradient-to-tr from-emerald-500 to-teal-400 shadow-emerald-500/30 hover:shadow-emerald-500/40'
                                 : 'bg-gradient-to-tr from-rose-500 to-orange-400 shadow-rose-500/30 hover:shadow-rose-500/40'
                             }`}
                     >
-                        {mode === 'IN' ? <LogIn size={20} /> : <LogOut size={20} />}
-                        Confirm {mode === 'IN' ? 'Time In' : 'Time Out'}
+                        {isLoading ? 'Connecting...' : (
+                            <>
+                                {mode === 'IN' ? <LogIn size={20} /> : <LogOut size={20} />}
+                                Confirm {mode === 'IN' ? 'Time In' : 'Time Out'}
+                            </>
+                        )}
                     </button>
 
                     {error && (
@@ -164,7 +170,16 @@ export default function ActionCard({ onAction, requireName = true, employees = [
     }
 
     return (
-        <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-slate-200/50 p-8 w-full max-w-md border border-white/50">
+        <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-slate-200/50 p-8 w-full max-w-md border border-white/50 relative overflow-hidden">
+            {isLoading && (
+                <div className="absolute inset-0 z-10 bg-white/50 backdrop-blur-[2px] flex items-center justify-center">
+                    <div className="animate-pulse flex flex-col items-center">
+                        <div className="h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+                        <span className="text-xs font-bold text-blue-600 tracking-wider">LOADING DATA...</span>
+                    </div>
+                </div>
+            )}
+
             <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-slate-800">Employee Time Clock</h2>
                 <p className="text-slate-500 text-sm mt-1">Select an action to proceed</p>
@@ -173,7 +188,8 @@ export default function ActionCard({ onAction, requireName = true, employees = [
             <div className="grid grid-cols-1 gap-4">
                 <button
                     onClick={() => setMode('IN')}
-                    className="group relative flex items-center justify-between p-6 rounded-2xl border-2 border-emerald-100 bg-emerald-50/50 hover:bg-emerald-100/50 hover:border-emerald-200 transition-all duration-300"
+                    disabled={isLoading}
+                    className="group relative flex items-center justify-between p-6 rounded-2xl border-2 border-emerald-100 bg-emerald-50/50 hover:bg-emerald-100/50 hover:border-emerald-200 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -188,7 +204,8 @@ export default function ActionCard({ onAction, requireName = true, employees = [
 
                 <button
                     onClick={() => setMode('OUT')}
-                    className="group relative flex items-center justify-between p-6 rounded-2xl border-2 border-rose-100 bg-rose-50/50 hover:bg-rose-100/50 hover:border-rose-200 transition-all duration-300"
+                    disabled={isLoading}
+                    className="group relative flex items-center justify-between p-6 rounded-2xl border-2 border-rose-100 bg-rose-50/50 hover:bg-rose-100/50 hover:border-rose-200 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center group-hover:scale-110 transition-transform">

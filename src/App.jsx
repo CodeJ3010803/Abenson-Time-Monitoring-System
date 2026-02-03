@@ -27,7 +27,7 @@ function App() {
   const storageKey = systemMode === 'TRAINING' ? 'abenson_training_logs' : 'abenson_time_logs'
 
   const { logs, addLog, clearLogs } = useLogs(storageKey)
-  const { employees, saveEmployees, clearEmployees } = useEmployees()
+  const { employees, saveEmployees, clearEmployees, loading: employeesLoading } = useEmployees()
 
   const [lastAction, setLastAction] = useState(null)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
@@ -111,7 +111,7 @@ function App() {
 
         {/* Left Side - Action Card */}
         <div className="flex flex-col items-center w-full max-w-md">
-          <ActionCard onAction={handleAction} requireName={false} employees={employees} logs={logs} allowMultipleLogs={systemMode === 'TRAINING'} />
+          <ActionCard onAction={handleAction} requireName={false} employees={employees} logs={logs} allowMultipleLogs={systemMode === 'TRAINING'} isLoading={employeesLoading} />
 
           {/* Success Toast */}
           <div className={`mt-8 transition-all duration-500 ${lastAction ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95 pointer-events-none'}`}>
