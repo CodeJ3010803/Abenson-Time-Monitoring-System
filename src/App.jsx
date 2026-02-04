@@ -106,6 +106,22 @@ function App() {
         </div>
       </header>
 
+      {/* Banner Section */}
+      <div className="relative z-10 w-full px-6 pt-2">
+        <div className="w-full">
+          <div className="relative overflow-hidden rounded-2xl shadow-xl border border-white/20">
+            <img
+              src="/BEYONDAWESOME.png"
+              alt="Abenson Awards - Beyond Awesome"
+              className="w-full h-auto object-cover"
+              style={{ maxHeight: '180px', objectPosition: 'center' }}
+            />
+            {/* Gradient overlay for better integration */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-white/10 pointer-events-none"></div>
+          </div>
+        </div>
+      </div>
+
       {/* Main Content */}
       <main className="relative z-10 flex-1 flex flex-col xl:flex-row items-center justify-center p-6 gap-12 lg:gap-20">
 
